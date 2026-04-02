@@ -3,7 +3,7 @@ name: are-reasoning-engine
 description: |
   State machine adversarial reasoning system. Execute one phase at a time based on current_phase input. Use when: debugging complex issues, validating architectural decisions, challenging assumptions, exploring multiple solution paths, or wanting systematic hypothesis validation.
 applyTo: []
-tools: []
+tools: ["semantic_search", "grep_search", "file_search", "read_file", "list_dir"]
 ---
 
 # AI Adversarial Reasoning Engine (State Machine)
@@ -33,6 +33,10 @@ Based on `current_phase`, execute exactly that phase and output ONLY valid JSON.
 ## PHASE: GENERATE
 
 ### When current_phase = "generate"
+
+**Context Gathering Rule:** Before generating hypotheses, you MUST use your available tools to search the workspace, read the relevant code files, and inspect configurations related to the `problem_statement`.
+
+**Tool-Output Constraint:** Your tool usage and internal thinking must remain hidden. The ONLY visible output returned from this phase must be the final strict JSON object. Do not output tool logs or text outside the JSON.
 
 Generate **2–3 diverse hypotheses** that:
 
@@ -64,6 +68,10 @@ Generate **2–3 diverse hypotheses** that:
 ## PHASE: DISCRIMINATE
 
 ### When current_phase = "discriminate"
+
+**Evidence Gathering Rule:** Before attacking, you MUST use your tools to inspect the actual codebase. Look for concrete, verifiable contradictions in the source code or file configurations that invalidate the generator's assumptions.
+
+**Tool-Output Constraint:** Your tool usage and internal thinking must remain hidden. The ONLY visible output returned from this phase must be the final strict JSON object. Do not output tool logs or text outside the JSON.
 
 **Become skeptical.** For EACH hypothesis from previous phase:
 
@@ -153,6 +161,7 @@ Compare all REFINED hypotheses and make a definitive routing decision:
 - **IF decision is "accept" or "abort" (loop terminates):**
 ```json
 {
+  "decision": "accept",
   "final_answer": "The most likely cause is...",
   "confidence": 0.85,
   "alternatives": ["Alternative 1 (confidence: 0.7)", "Alternative 2 (confidence: 0.6)"],
