@@ -140,16 +140,17 @@ Generate **2–3 diverse hypotheses** that:
 
 ### When current_phase = "judge"
 
-Compare all REFINED hypotheses:
+Compare all REFINED hypotheses and make a definitive routing decision:
 
-- Score each on alignment, reasoning quality, robustness, actionability
-- Rank them clearly (1st, 2nd, 3rd)
-- Assign final confidence to the winner
-- Explain why it wins
-- Note remaining risks
+- **"accept"**: Confidence ≥ 0.80, solution is robust and actionable
+- **"abort"**: Confidence < 0.50, no viable hypotheses remain
+- **"iterate"**: 0.50 ≤ confidence < 0.80, need another refinement loop
 
 ### Output Format (JSON only)
 
+**Conditional based on decision:**
+
+- **IF decision is "accept" or "abort" (loop terminates):**
 ```json
 {
   "final_answer": "The most likely cause is...",
@@ -158,6 +159,23 @@ Compare all REFINED hypotheses:
   "rejected_hypotheses": ["Hypothesis that was rejected", "Another rejected one"],
   "key_assumptions": ["Assumption 1", "Assumption 2"],
   "risks": ["Risk 1: description", "Risk 2: description"]
+}
+```
+
+- **IF decision is "iterate" (loop continues):**
+```json
+{
+  "decision": "iterate",
+  "confidence": 0.65,
+  "reasoning_summary": "Why we need another loop...",
+  "surviving_hypotheses": [
+    {
+      "title": "Hypothesis title",
+      "assumptions": ["A1: explicit assumption", "A2: explicit assumption"],
+      "reasoning": ["Step 1", "Step 2", "Conclusion"],
+      "solution": ["Concrete action 1", "Concrete action 2"]
+    }
+  ]
 }
 ```
 
